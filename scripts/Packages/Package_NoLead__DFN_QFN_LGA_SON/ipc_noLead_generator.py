@@ -16,6 +16,7 @@ sys.path.append(os.path.join(sys.path[0], "..", "..", "tools"))  # load parent p
 from footprint_text_fields import addTextFields
 from ipc_pad_size_calculators import *
 from quad_dual_pad_border import add_dual_or_quad_pad_border
+from silkscreen_calc import calc_silk_x, calc_silk_y
 
 sys.path.append(os.path.join(sys.path[0], "..", "utils"))
 from ep_handling_utils import getEpRoundRadiusParams
@@ -405,32 +406,34 @@ class NoLead():
         silk_pad_offset = configuration['silk_pad_clearance'] + configuration['silk_line_width']/2
         silk_offset = configuration['silk_fab_offset']
         if device_params['num_pins_x'] == 0:
+            x1, x2 = calc_silk_x(device_params, body_edge)
             kicad_mod.append(Line(
-                start={'x':0,
+                start={'x':x1[0],
                     'y':body_edge['top']-silk_offset},
-                end={'x':body_edge['right'],
+                end={'x':x1[1],
                     'y':body_edge['top']-silk_offset},
                 width=configuration['silk_line_width'],
                 layer="F.SilkS"))
             kicad_mod.append(Line(
-                start={'x':body_edge['left'],
+                start={'x':x2[0],
                     'y':body_edge['bottom']+silk_offset},
-                end={'x':body_edge['right'],
+                end={'x':x2[1],
                     'y':body_edge['bottom']+silk_offset},
                 width=configuration['silk_line_width'],
                 layer="F.SilkS", y_mirror=0))
         elif device_params['num_pins_y'] == 0:
+            y1, y2 = calc_silk_y(device_params, body_edge)
             kicad_mod.append(Line(
-                start={'y':0,
+                start={'y':y1[0],
                     'x':body_edge['left']-silk_offset},
-                end={'y':body_edge['bottom'],
+                end={'y':y1[1],
                     'x':body_edge['left']-silk_offset},
                 width=configuration['silk_line_width'],
                 layer="F.SilkS"))
             kicad_mod.append(Line(
-                start={'y':body_edge['top'],
+                start={'y':y2[0],
                     'x':body_edge['right']+silk_offset},
-                end={'y':body_edge['bottom'],
+                end={'y':y2[1],
                     'x':body_edge['right']+silk_offset},
                 width=configuration['silk_line_width'],
                 layer="F.SilkS", x_mirror=0))
