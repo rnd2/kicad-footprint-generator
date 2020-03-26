@@ -16,7 +16,7 @@ sys.path.append(os.path.join(sys.path[0], "..", "..", "tools"))  # load parent p
 from footprint_text_fields import addTextFields
 from ipc_pad_size_calculators import *
 from quad_dual_pad_border import add_dual_or_quad_pad_border
-from silkscreen_calc import calc_silk_x, calc_silk_y
+from silkscreen_calc import calc_silk_x, calc_silk_y, calc_poly_fab
 
 sys.path.append(os.path.join(sys.path[0], "..", "utils"))
 from ep_handling_utils import getEpRoundRadiusParams
@@ -477,15 +477,7 @@ class NoLead():
 
         fab_bevel_size = min(configuration['fab_bevel_size_absolute'], configuration['fab_bevel_size_relative']*min(size_x, size_y))
 
-        poly_fab = [
-            {'x': body_edge['left']+fab_bevel_size, 'y': body_edge['top']},
-            {'x': body_edge['right'], 'y': body_edge['top']},
-            {'x': body_edge['right'], 'y': body_edge['bottom']},
-            {'x': body_edge['left'], 'y': body_edge['bottom']},
-            {'x': body_edge['left'], 'y': body_edge['top']+fab_bevel_size},
-            {'x': body_edge['left']+fab_bevel_size, 'y': body_edge['top']},
-        ]
-
+        poly_fab = calc_poly_fab(device_params, body_edge, fab_bevel_size)
         kicad_mod.append(PolygoneLine(
             polygone=poly_fab,
             width=configuration['fab_line_width'],

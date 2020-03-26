@@ -147,3 +147,43 @@ def calc_silk_y(device_params, body_edge):
             else:
                 line2 = lines[0]
     return line1, line2
+
+
+def calc_poly_fab(device_params, body_edge, fab_bevel_size):
+    """Calculates the poly line for the fabrication layer.
+
+    Args:
+        device_params: Device parameters dictionary
+        body_edge: Part's body edge dict
+        fab_bevel_size: Size of bevel edge
+
+    Returns:
+       poly_fab: Fabrication poly-line
+
+    """
+    # Default sides and bevels (works for top_left)
+    side1, side2, side3, side4 = "left", "top", "right", "bottom"
+    bevel1 = bevel2 = fab_bevel_size
+
+    if device_params.get("pad_numbers"):
+        start = device_params["pad_numbers"].get("start") or "top_left"
+        # start can be either of "[top, bottom]_[left, right]"
+        tb, lr = start.split("_")
+
+        if "bottom" in tb:
+            side4, side2 = side2, side4  # swap top/bottom
+            bevel2 = -fab_bevel_size
+
+        if "right" in lr:
+            side3, side1 = side1, side3  # swap left/right
+            bevel1 = -fab_bevel_size
+
+    poly_fab = [
+        {"x": body_edge[side1] + bevel1, "y": body_edge[side2]},
+        {"x": body_edge[side3], "y": body_edge[side2]},
+        {"x": body_edge[side3], "y": body_edge[side4]},
+        {"x": body_edge[side1], "y": body_edge[side4]},
+        {"x": body_edge[side1], "y": body_edge[side2] + bevel2},
+        {"x": body_edge[side1] + bevel1, "y": body_edge[side2]},
+    ]
+    return poly_fab
